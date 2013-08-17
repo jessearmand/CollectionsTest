@@ -13,7 +13,7 @@
 - (void)performTests
 {
     NSInteger iterationIndex;
-	const NSInteger NUM_ELEMENTS = 1000000;
+	const NSInteger NUM_ELEMENTS = 10000;
 	const NSInteger NUM_TEST_ITERATIONS = 3;
 	NSDate *startTime;
 	NSDate *endTime;
@@ -46,8 +46,11 @@
             NSMutableArray *arrayOfObjects = [NSMutableArray arrayWithCapacity:NUM_ELEMENTS];
             NSMutableArray *unsizedArray = [NSMutableArray array];
             NSMutableSet *setOfObjects = [NSMutableSet setWithCapacity:NUM_ELEMENTS];
+            NSMutableOrderedSet *orderedSetOfObjects = [NSMutableOrderedSet orderedSetWithCapacity:NUM_ELEMENTS];
             NSSet *setFromArray = nil;
+            NSOrderedSet *orderedSetFromArray = nil;
             NSMutableSet *unsizedSet = [NSMutableSet set];
+            NSMutableOrderedSet *unsizedOrderedSet = [NSMutableOrderedSet orderedSet];
 #if (!TARGET_OS_IPHONE && !TARGET_IPHONE_SIMULATOR)
             NSMapTable *testTable = [NSMapTable mapTableWithStrongToStrongObjects];
 #endif
@@ -111,29 +114,29 @@
             // Test 2b: Array querying by isEqualTo:
             // Takes a very long time.
             
-//            @autoreleasepool {
-//                startTime = [NSDate date];
-//                for (NSNumber *number in objects)
-//                {
-//                    [arrayOfObjects indexOfObject:number];
-//                }
-//                endTime = [NSDate date];
-//                NSLog(@"Array querying by isEqualTo: took %g seconds",
-//                      [endTime timeIntervalSinceDate:startTime]);
-//            }
+            @autoreleasepool {
+                startTime = [NSDate date];
+                for (NSNumber *number in objects)
+                {
+                    [arrayOfObjects indexOfObject:number];
+                }
+                endTime = [NSDate date];
+                NSLog(@"Array querying by isEqualTo: took %g seconds",
+                      [endTime timeIntervalSinceDate:startTime]);
+            }
             
             // Test 2c: Array querying by pointer value
             
-//            @autoreleasepool {
-//                startTime = [NSDate date];
-//                for (NSNumber *number in objects)
-//                {
-//                    [arrayOfObjects indexOfObjectIdenticalTo:number];
-//                }
-//                endTime = [NSDate date];
-//                NSLog(@"Array querying by pointer value took %g seconds",
-//                      [endTime timeIntervalSinceDate:startTime]);
-//            }
+            @autoreleasepool {
+                startTime = [NSDate date];
+                for (NSNumber *number in objects)
+                {
+                    [arrayOfObjects indexOfObjectIdenticalTo:number];
+                }
+                endTime = [NSDate date];
+                NSLog(@"Array querying by pointer value took %g seconds",
+                      [endTime timeIntervalSinceDate:startTime]);
+            }
             
             //
             // Test 3: Set construction when setWithCapacity: is used
@@ -146,6 +149,20 @@
                 }
                 endTime = [NSDate date];
                 NSLog(@"Constructing the preallocated set took %g seconds",
+                      [endTime timeIntervalSinceDate:startTime]);
+            }
+            
+            //
+            // Test 3b: Ordered Set construction when orderedSetWithCapacity: is used
+            //
+            @autoreleasepool {
+                startTime = [NSDate date];
+                for (NSNumber *number in objects)
+                {
+                    [orderedSetOfObjects addObject:number];
+                }
+                endTime = [NSDate date];
+                NSLog(@"Constructing the preallocated ordered set took %g seconds",
                       [endTime timeIntervalSinceDate:startTime]);
             }
             
@@ -164,13 +181,38 @@
             }
             
             //
-            // Test 4z: Set construction directly from an array of objects
+            // Test 4v: Ordered Set construction when orderedSetWithCapacity: is NOT used
+            //
+            @autoreleasepool {
+                startTime = [NSDate date];
+                for (NSNumber *number in objects)
+                {
+                    [unsizedOrderedSet addObject:number];
+                }
+                endTime = [NSDate date];
+                NSLog(@"Constructing the unpreallocated ordered set took %g seconds",
+                      [endTime timeIntervalSinceDate:startTime]);
+            }
+            
+            //
+            // Test 4w: Set construction directly from an array of objects
             //
             @autoreleasepool {
                 startTime = [NSDate date];
                 setFromArray = [NSSet setWithArray:objects];
                 endTime = [NSDate date];
                 NSLog(@"Constructing the set from an array took %g seconds",
+                      [endTime timeIntervalSinceDate:startTime]);
+            }
+            
+            //
+            // Test 4x: Ordered Set construction directly from an array of objects
+            //
+            @autoreleasepool {
+                startTime = [NSDate date];
+                orderedSetFromArray = [NSOrderedSet orderedSetWithArray:objects];
+                endTime = [NSDate date];
+                NSLog(@"Constructing the ordered set from an array took %g seconds",
                       [endTime timeIntervalSinceDate:startTime]);
             }
             
@@ -208,6 +250,39 @@
             }
             
             //
+            // Test 4z: Ordered Set iterating
+            //
+            @autoreleasepool {
+                startTime = [NSDate date];
+                for (NSNumber *number in orderedSetOfObjects)
+                {
+                }
+                endTime = [NSDate date];
+                NSLog(@"Iterating the preallocated ordered set took %g seconds",
+                      [endTime timeIntervalSinceDate:startTime]);
+            }
+            
+            @autoreleasepool {
+                startTime = [NSDate date];
+                for (NSNumber *number in unsizedOrderedSet)
+                {
+                }
+                endTime = [NSDate date];
+                NSLog(@"Iterating the unpreallocated ordered set took %g seconds",
+                      [endTime timeIntervalSinceDate:startTime]);
+            }
+            
+            @autoreleasepool {
+                startTime = [NSDate date];
+                for (NSNumber *number in orderedSetFromArray)
+                {
+                }
+                endTime = [NSDate date];
+                NSLog(@"Iterating non-mutable ordered set took %g seconds",
+                      [endTime timeIntervalSinceDate:startTime]);
+            }
+            
+            //
             // Test 4a: Set querying
             //
             @autoreleasepool {
@@ -240,6 +315,42 @@
                 }
                 endTime = [NSDate date];
                 NSLog(@"non-mutable set querying took %g seconds",
+                      [endTime timeIntervalSinceDate:startTime]);
+            }
+            
+            //
+            // Test 4b: Ordered Set querying
+            //
+            @autoreleasepool {
+                startTime = [NSDate date];
+                for (NSNumber *number in objects)
+                {
+                    [orderedSetOfObjects containsObject:number];
+                }
+                endTime = [NSDate date];
+                NSLog(@"Preallocated ordered set querying took %g seconds",
+                      [endTime timeIntervalSinceDate:startTime]);
+            }
+            
+            @autoreleasepool {
+                startTime = [NSDate date];
+                for (NSNumber *number in objects)
+                {
+                    [unsizedOrderedSet containsObject:number];
+                }
+                endTime = [NSDate date];
+                NSLog(@"Unpreallocated ordered set querying took %g seconds",
+                      [endTime timeIntervalSinceDate:startTime]);
+            }
+            
+            @autoreleasepool {
+                startTime = [NSDate date];
+                for (NSNumber *number in objects)
+                {
+                    [orderedSetFromArray containsObject:number];
+                }
+                endTime = [NSDate date];
+                NSLog(@"non-mutable ordered set querying took %g seconds",
                       [endTime timeIntervalSinceDate:startTime]);
             }
             
